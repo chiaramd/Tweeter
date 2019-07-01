@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SimpleTweet</string>
+    <string name="login_label">Log in</string>
+    <string name="intent_scheme">oauth</string>
+    <string name="intent_host">cprest</string>
+    <string name="tweet_body">Tweet body.</string>
+    <string name="twitter_handle">handle</string>
+    <string name="profile_image">Profile Image</string>
+    <string name="user_name">User Name</string>
+    <string name="timestamp">0 m</string>
+    <string name="tweet_prompt">Write your tweet...</string>
+    <string name="tweet_button">Tweet</string>
+
+</resources>
