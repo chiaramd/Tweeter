@@ -1,10 +1,14 @@
 package com.codepath.apps.restclienttemplate;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.TweetAdapter;
@@ -13,6 +17,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -98,33 +103,36 @@ public class TimelineActivity extends AppCompatActivity {
         });
     }
 
-//    public class DividerItemDecoration extends RecyclerView.ItemDecoration {
-//        private static final int[] ATTRS = new int[]{android.R.attr.listDivider};
-//        private Drawable divider;
-//
-//
-//        public DividerItemDecoration(Context context) {
-//            final TypedArray styledAttributes = context.obtainStyledAttributes(ATTRS);
-//            divider = styledAttributes.getDrawable(0);
-//            styledAttributes.recycle();
-//        }
-//
-//        @Override
-//        public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-//            int left = parent.getPaddingLeft();
-//            int right = parent.getWidth() = parent.getPaddingRight();
-//
-//            int childCount = parent.getChildCount();
-//            for (int i = 0; i < childCount; i++) {
-//                View child = parent.getChildAt(i);
-//                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-//
-//                int top = child.getBottom() + params.bottomMargin;
-//                int bottom = top + divider.getIntrinsicHeight();
-//
-//                divider.setBounds(left, top, right, bottom);
-//                divider.draw(c);
-//            }
-//        }
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        final MenuItem composeItem = menu.findItem(R.id.miCompose);
+
+        composeItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                composeTweet();
+                return true;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void composeTweet() {
+        Intent i = new Intent(this, CompositionActivity.class);
+        startActivityForResult(i, 20);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == RESULT_OK && requestCode == 20) {
+            Tweet newTweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
+            tweets.add(0, newTweet);
+            tweetAdapter.notifyItemInserted(0);
+            rvTweets.scrollToPosition(0);
+        }
+    }
 }

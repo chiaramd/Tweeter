@@ -6,17 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".CompositionActivity">
 
-    <TextView
-        android:id="@+id/textView"
+    <EditText
+        android:id="@+id/etCompose"
         android:layout_width="336dp"
         android:layout_height="130dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:text="@string/tweet_prompt"
+        android:hint="@string/tweet_prompt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints=""
+        android:inputType="" />
 
     <Button
         android:id="@+id/button"
@@ -26,6 +28,7 @@
         android:layout_marginEnd="36dp"
         android:text="@string/tweet_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/etCompose"
+        android:onClick="onClick"/>
 
 </android.support.constraint.ConstraintLayout>
