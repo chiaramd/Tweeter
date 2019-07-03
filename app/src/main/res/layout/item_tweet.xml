@@ -21,8 +21,12 @@
         android:id="@+id/tvUserName"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginStart="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="8dp"
         android:text="@string/user_name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/ivProfileImage"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,10 +34,14 @@
         android:id="@+id/tvBody"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="5dp"
+        android:autoLink="all"
+        android:linksClickable="true"
         android:text="@string/tweet_body"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ivProfileImage"
         app:layout_constraintTop_toBottomOf="@+id/tvUserName" />
@@ -44,21 +52,20 @@
         android:layout_height="0dp"
         android:layout_marginEnd="5dp"
         android:text="@string/timestamp"
-        app:layout_constraintBottom_toTopOf="@+id/tvBody"
+        app:layout_constraintBottom_toBottomOf="@+id/tvUserName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/tvUserName" />
 
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="32dp"
-        android:background="#751A7BC5"
+        android:background="@color/colorBackground"
+        app:layout_constraintTop_toBottomOf="@+id/ivRetweet"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/barrier" />
+        tools:layout_editor_absoluteY="126dp" />
 
     <android.support.constraint.Barrier
         android:id="@+id/barrier"
@@ -69,4 +76,67 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="55dp" />
+
+    <TextView
+        android:id="@+id/tvHandle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        app:layout_constraintBottom_toBottomOf="@+id/tvUserName"
+        app:layout_constraintStart_toEndOf="@+id/divider2"
+        app:layout_constraintTop_toTopOf="@+id/tvUserName"
+        tools:text="@string/twitter_handle" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="3dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/colorBackground"
+        app:layout_constraintBottom_toBottomOf="@+id/tvUserName"
+        app:layout_constraintStart_toEndOf="@+id/tvUserName"
+        app:layout_constraintTop_toTopOf="@+id/tvUserName" />
+
+    <ImageView
+        android:id="@+id/ivRetweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="Retweet Symbol"
+        app:layout_constraintEnd_toStartOf="@+id/tvRetweet"
+        app:layout_constraintTop_toTopOf="@+id/barrier"
+        app:srcCompat="@drawable/ic_vector_retweet_stroke" />
+
+    <ImageView
+        android:id="@+id/ivFave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="Fave Symbol"
+        app:layout_constraintBottom_toBottomOf="@+id/ivRetweet"
+        app:layout_constraintEnd_toStartOf="@+id/tvFave"
+        app:layout_constraintTop_toTopOf="@+id/ivRetweet"
+        app:srcCompat="@drawable/ic_vector_heart_stroke" />
+
+    <TextView
+        android:id="@+id/tvRetweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="60dp"
+        android:text="@string/retweets"
+        app:layout_constraintBottom_toBottomOf="@+id/ivRetweet"
+        app:layout_constraintEnd_toStartOf="@+id/ivFave"
+        app:layout_constraintTop_toTopOf="@+id/ivRetweet" />
+
+    <TextView
+        android:id="@+id/tvFave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="60dp"
+        android:text="@string/faves"
+        app:layout_constraintBottom_toBottomOf="@+id/ivFave"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/ivFave" />
 </android.support.constraint.ConstraintLayout>

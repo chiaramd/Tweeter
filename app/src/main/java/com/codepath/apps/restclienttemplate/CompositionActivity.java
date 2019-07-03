@@ -3,10 +3,11 @@ package com.codepath.apps.restclienttemplate;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -23,22 +24,25 @@ public class CompositionActivity extends AppCompatActivity {
     EditText etItemText;
     private TwitterClient client;
     TextView tvChars;
-    Button btnSendTweet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_composition);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.tbCompose);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         etItemText = (EditText) findViewById(R.id.etCompose);
         tvChars = (TextView) findViewById(R.id.tvChars);
         etItemText.addTextChangedListener(textEditorWatcher);
-        btnSendTweet = (Button) findViewById(R.id.button);
         getSupportActionBar().setTitle("Compose a Tweet");
         client = TwitterApp.getRestClient(this);
 
     }
 
-    public void onClick(View v) {
+    public void tweet() {
         String message = etItemText.getText().toString();
         client.sendTweet(message, new JsonHttpResponseHandler() {
 
@@ -61,7 +65,34 @@ public class CompositionActivity extends AppCompatActivity {
 
     }
 
-    public void cancel(View view) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_compose, menu);
+
+        final MenuItem cancelItem = menu.findItem(R.id.miCancel);
+        final MenuItem tweetItem = menu.findItem(R.id.miTweet);
+
+        cancelItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                cancel();
+                return true;
+            }
+        });
+
+        tweetItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                tweet();
+                return true;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void cancel() {
         Intent i = new Intent();
         setResult(RESULT_CANCELED, i);
         finish();
@@ -78,9 +109,9 @@ public class CompositionActivity extends AppCompatActivity {
             Integer charsLeft = 180 - Integer.valueOf(s.length());
             tvChars.setText(String.format("%s chars left", charsLeft));
             if (charsLeft == 0) {
-                btnSendTweet.setClickable(true);
+//                btnSendTweet.setClickable(true);
             } else if (charsLeft == -1) {
-                btnSendTweet.setClickable(false);
+//                btnSendTweet.setClickable(false);
             }
 
         }

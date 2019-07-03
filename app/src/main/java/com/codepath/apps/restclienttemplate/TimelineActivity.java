@@ -3,13 +3,15 @@ package com.codepath.apps.restclienttemplate;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.TweetAdapter;
@@ -32,15 +34,32 @@ public class TimelineActivity extends AppCompatActivity {
     RecyclerView rvTweets;
     private SwipeRefreshLayout swipeContainer;
     long latestId;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
+        //getSupportActionBar().setLogo(R.mipmap.ic_launcher_twittr);
+        //getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         client = TwitterApp.getRestClient(this);
 
-        //lookup the swip container view
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                composeTweet();
+            }
+        });
+
+        //lookup the swipe container view
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         //setup refresh listener
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -125,24 +144,12 @@ public class TimelineActivity extends AppCompatActivity {
                 throwable.printStackTrace();
             }
 
-        }, 1);
+        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        final MenuItem composeItem = menu.findItem(R.id.miCompose);
-
-        composeItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-
-                composeTweet();
-                return true;
-            }
-        });
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -165,7 +172,7 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void fetchTimelineAsync() {
-        client.getHomeTimeline(new JsonHttpResponseHandler() {
+        client.updateTimeline(new JsonHttpResponseHandler() {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {

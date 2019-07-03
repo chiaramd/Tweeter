@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.codepath.apps.restclienttemplate.R;
 
 import java.text.ParseException;
@@ -52,10 +53,14 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         viewHolder.tvUsername.setText(tweet.user.name);
         viewHolder.tvBody.setText(tweet.body);
         viewHolder.tvTimestamp.setText(getRelativeTimeAgo(tweet.createdAt));
+        viewHolder.tvHandle.setText(String.format("@%s",tweet.user.screenName));
+        viewHolder.tvRetweets.setText(Integer.toString(tweet.retweets));
+        viewHolder.tvFaves.setText(Integer.toString(tweet.faves));
         String imageUrl = tweet.user.profileImageUrl;
 
         Glide.with(context)
                 .load(imageUrl)
+                .apply(RequestOptions.circleCropTransform())
                 .into(viewHolder.ivProfileImage);
     }
 
@@ -72,6 +77,9 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         public TextView tvUsername;
         public TextView tvBody;
         public TextView tvTimestamp;
+        public TextView tvHandle;
+        public TextView tvFaves;
+        public TextView tvRetweets;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -80,6 +88,9 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
             tvUsername = (TextView) itemView.findViewById(R.id.tvUserName);
             tvBody = (TextView) itemView.findViewById(R.id.tvBody);
             tvTimestamp = (TextView) itemView.findViewById(R.id.tvTimestamp);
+            tvHandle = (TextView) itemView.findViewById(R.id.tvHandle);
+            tvFaves = (TextView) itemView.findViewById(R.id.tvFave);
+            tvRetweets = (TextView) itemView.findViewById(R.id.tvRetweet);
         }
     }
 
@@ -104,16 +115,6 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
 
 
         return reconstructedRelDate;
-    }
-
-    public void clear() {
-        mTweets.clear();
-        notifyDataSetChanged();
-    }
-
-    public void addAll(List<Tweet> list) {
-        mTweets.addAll(list);
-        notifyDataSetChanged();
     }
 
 }
