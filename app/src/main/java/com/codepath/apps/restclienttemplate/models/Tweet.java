@@ -37,4 +37,28 @@ public class Tweet {
     public Tweet() {
 
     }
+
+    public String getBody() {
+        return body;
+    }
+
+    public long getUid() {
+        return uid;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public Integer getRetweets() {
+        return retweets;
+    }
+
+    public Integer getFaves() {
+        return faves;
+    }
 }

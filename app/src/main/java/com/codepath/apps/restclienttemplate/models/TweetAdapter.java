@@ -19,8 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-import static android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE;
-
 public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> {
 
     private List<Tweet> mTweets;
@@ -37,6 +35,9 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
+
+
+//                "EEE MMM dd HH:mm:ss ZZZZZ yyyy"
 
         View tweetView = inflater.inflate(R.layout.item_tweet, viewGroup, false);
         ViewHolder viewHolder = new ViewHolder(tweetView);
@@ -102,19 +103,27 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         String relativeDate = "";
         try {
             long dateMillis = sf.parse(rawJsonDate).getTime();
-            relativeDate = DateUtils.getRelativeTimeSpanString(dateMillis, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, FORMAT_ABBREV_RELATIVE).toString();
+            relativeDate = DateUtils.getRelativeTimeSpanString(dateMillis, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
 
         String[] splitDate = relativeDate.split(" ", 2);
-//        String num = splitDate[0];
-//        String time = splitDate[1];
         String reconstructedRelDate = String.format("%s%s", splitDate[0], splitDate[1].charAt(0));
 
 
         return reconstructedRelDate;
+    }
+
+    public void clear() {
+        mTweets.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAll(List<Tweet> list) {
+        mTweets.addAll(list);
+        notifyDataSetChanged();
     }
 
 }

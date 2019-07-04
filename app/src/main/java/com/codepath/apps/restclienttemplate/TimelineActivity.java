@@ -12,7 +12,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Toast;
 
+import com.codepath.apps.restclienttemplate.models.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.TweetAdapter;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -33,8 +35,10 @@ public class TimelineActivity extends AppCompatActivity {
     ArrayList<Tweet> tweets;
     RecyclerView rvTweets;
     private SwipeRefreshLayout swipeContainer;
-    long latestId;
+    long latestId = 1;
     FloatingActionButton fab;
+    long earliestId;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +53,7 @@ public class TimelineActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         client = TwitterApp.getRestClient(this);
-
         fab = (FloatingActionButton) findViewById(R.id.fab);
-
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,14 +67,10 @@ public class TimelineActivity extends AppCompatActivity {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-                //code to refresh list here
-
                 //TODO un-comment this code
-                //fetchTimelineAsync();
+                fetchTimelineAsync();
                 //TODO and comment out this code
-                swipeContainer.setRefreshing(false);
-
+                //swipeContainer.setRefreshing(false);
             }
         });
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -88,12 +86,22 @@ public class TimelineActivity extends AppCompatActivity {
 
         //construct adapter from this data src
         tweetAdapter = new TweetAdapter(tweets);
+//        tweetAdapter.getRelativeTimeAgo("2019-06-03T17:53:29.621-0800");
+//        1939-07-03T17:53:29.621-0800
+
 
         //RecyclerView setup (layout manager, use adapter)
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvTweets.setLayoutManager(linearLayoutManager);
         rvTweets.setAdapter(tweetAdapter);
 
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                fetchMoreTweets();
+            }
+        };
+        rvTweets.addOnScrollListener(scrollListener);
 
         populateTimeline();
     }
@@ -102,7 +110,6 @@ public class TimelineActivity extends AppCompatActivity {
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-//                Log.d("TwitterClient", response.toString());
                 //iterate through JSON array
                 for (int i = 0; i < response.length(); i++) {
                     try {
@@ -111,6 +118,9 @@ public class TimelineActivity extends AppCompatActivity {
                         //add that Tweet model to our data src
                         if (latestId == 0 || tweet.uid > latestId) {
                             latestId = tweet.uid;
+                        }
+                        if (tweet.uid < earliestId || earliestId == 0) {
+                            earliestId = tweet.uid;
                         }
                         tweets.add(tweet);
                         //notify adapter that item has been added
@@ -141,6 +151,20 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 Log.d("TwitterClient", errorResponse.toString());
+                try {
+                    JSONArray errorArray = errorResponse.getJSONArray("errors");
+                    JSONObject error = errorArray.getJSONObject(0);
+                    try {
+                        Integer errorCode = error.getInt("code");
+                        if (errorCode == 88) {
+                            Toast.makeText(TimelineActivity.this, "You bitch, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 throwable.printStackTrace();
             }
 
@@ -187,12 +211,7 @@ public class TimelineActivity extends AppCompatActivity {
                         Tweet tweet = Tweet.fromJSON(response.getJSONObject(i));
                         //add that Tweet model to our data src
                         tweets.add(tweet);
-
-                        try {
-                            if (tweet.uid < latestId) {
-                                latestId = tweet.uid;
-                            }
-                        } catch (NullPointerException e) {
+                        if (latestId == 0 || tweet.uid > latestId) {
                             latestId = tweet.uid;
                         }
                         //notify adapter that item has been added
@@ -201,16 +220,79 @@ public class TimelineActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-
                 //signal that the refresh has completed
                 swipeContainer.setRefreshing(false);
             }
 
-
-
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("TwitterClient", response.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.d("TwitterClient", responseString);
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                Log.d("TwitterClient", errorResponse.toString());
+                throwable.printStackTrace();
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("TwitterClient", errorResponse.toString());
+                try {
+                    JSONArray errorArray = errorResponse.getJSONArray("errors");
+                    JSONObject error = errorArray.getJSONObject(0);
+                    try {
+                        Integer errorCode = error.getInt("code");
+                        if (errorCode == 88) {
+                            Toast.makeText(TimelineActivity.this, "You bitch, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                throwable.printStackTrace();
+                swipeContainer.setRefreshing(false);
+            }
+        }, latestId);
+    }
+
+    private void fetchMoreTweets() {
+        client.getMoreTweets(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                super.onSuccess(statusCode, headers, response);
+                Log.d("TwitterClient", response.toString());
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        Tweet tweet = Tweet.fromJSON(response.getJSONObject(i));
+                        tweets.add(tweet);
+                        if (tweet.uid < earliestId || earliestId == 0) {
+                            earliestId = tweet.uid;
+                        }
+                        tweetAdapter.notifyItemInserted(tweets.size() - 1);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("TwitterClient", response.toString());
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                super.onSuccess(statusCode, headers, responseString);
+                Log.d("TwitterClient", responseString);
             }
 
             @Override
@@ -228,8 +310,23 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 Log.d("TwitterClient", errorResponse.toString());
+                try {
+                    JSONArray errorArray = errorResponse.getJSONArray("errors");
+                    JSONObject error = errorArray.getJSONObject(0);
+                    try {
+                        Integer errorCode = error.getInt("code");
+                        if (errorCode == 88) {
+                            Toast.makeText(TimelineActivity.this, "You bitch, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 throwable.printStackTrace();
             }
-        }, latestId);
+
+        }, earliestId);
     }
 }
