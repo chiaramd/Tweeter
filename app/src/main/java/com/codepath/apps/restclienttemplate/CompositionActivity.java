@@ -33,6 +33,7 @@ public class CompositionActivity extends AppCompatActivity {
     boolean reply;
     String replyId;
     String username;
+    Boolean clickable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,12 +166,14 @@ public class CompositionActivity extends AppCompatActivity {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            Integer charsLeft = 180 - Integer.valueOf(s.length());
+            Integer charsLeft = 280 - Integer.valueOf(s.length());
             tvChars.setText(String.format("%s chars left", charsLeft));
             if (charsLeft == 0) {
 //                btnSendTweet.setClickable(true);
+                clickable = true;
             } else if (charsLeft == -1) {
 //                btnSendTweet.setClickable(false);
+                clickable = false;
             }
 
         }

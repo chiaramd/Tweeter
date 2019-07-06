@@ -167,7 +167,7 @@ public class TimelineActivity extends AppCompatActivity {
                     try {
                         Integer errorCode = error.getInt("code");
                         if (errorCode == 88) {
-                            Toast.makeText(TimelineActivity.this, "You bitch, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(TimelineActivity.this, "Oh no, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -207,9 +207,6 @@ public class TimelineActivity extends AppCompatActivity {
         }
         if (resultCode == RESULT_OK && requestCode == 30) {
             Tweet newTweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
-            if (latestId == 0 || newTweet.uid > latestId) {
-                latestId = newTweet.uid;
-            }
             tweets.add(0, newTweet);
             tweetAdapter.notifyItemInserted(0);
             rvTweets.scrollToPosition(0);
@@ -274,7 +271,7 @@ public class TimelineActivity extends AppCompatActivity {
                     try {
                         Integer errorCode = error.getInt("code");
                         if (errorCode == 88) {
-                            Toast.makeText(TimelineActivity.this, "You bitch, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(TimelineActivity.this, "Oh no, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -339,7 +336,7 @@ public class TimelineActivity extends AppCompatActivity {
                     try {
                         Integer errorCode = error.getInt("code");
                         if (errorCode == 88) {
-                            Toast.makeText(TimelineActivity.this, "You bitch, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(TimelineActivity.this, "Oh no, you exceeded your rate limit!!", Toast.LENGTH_LONG).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
