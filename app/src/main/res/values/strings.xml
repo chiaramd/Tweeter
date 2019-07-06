@@ -13,7 +13,7 @@
     <string name="tweet_prompt">What\'s happening?</string>
     <string name="tweet_button">Tweet</string>
     <string name="charsLeft">180 chars left</string>
-    <string name="home">Home</string>
+    <string name="home">Twitter</string>
     <string name="faves">0</string>
     <string name="retweets">0</string>
 
