@@ -3,4 +3,11 @@
     <color name="colorPrimary">#00aced</color>
     <color name="colorPrimaryDark">#0084b4</color>
     <color name="colorBackground">#c0deed</color>
+    <color name="colorTwitterPrimaryBlue">#1DA1F2</color>
+    <color name="colorTwitterBlack">#14171A</color>
+    <color name="colorTwitterDarkGray">#657786</color>
+    <color name="colorTwitterLightGray">#AAB8C2</color>
+    <color name="colorTwitterExtraLightGray">#E1E8ED</color>
+    <color name="colorTwitterWhite">#FFFFFF</color>
+    
 </resources>

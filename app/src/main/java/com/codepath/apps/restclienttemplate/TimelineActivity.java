@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcels;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
@@ -85,7 +86,7 @@ public class TimelineActivity extends AppCompatActivity {
         tweets = new ArrayList<>();
 
         //construct adapter from this data src
-        tweetAdapter = new TweetAdapter(tweets);
+        tweetAdapter = new TweetAdapter(tweets, this);
 //        tweetAdapter.getRelativeTimeAgo("2019-06-03T17:53:29.621-0800");
 //        1939-07-03T17:53:29.621-0800
 
@@ -106,7 +107,14 @@ public class TimelineActivity extends AppCompatActivity {
         populateTimeline();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        populateTimeline();
+    }
+
     private void populateTimeline() {
+        Log.d("TimelineActivity", "Populating Timeline");
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -126,6 +134,8 @@ public class TimelineActivity extends AppCompatActivity {
                         //notify adapter that item has been added
                         tweetAdapter.notifyItemInserted(tweets.size() - 1);
                     } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (ParseException e) {
                         e.printStackTrace();
                     }
                 }
@@ -179,12 +189,23 @@ public class TimelineActivity extends AppCompatActivity {
 
     public void composeTweet() {
         Intent i = new Intent(this, CompositionActivity.class);
+        i.putExtra("id", "0");
+        i.putExtra("username", "0");
         startActivityForResult(i, 20);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode == RESULT_OK && requestCode == 20) {
+            Tweet newTweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
+            if (latestId == 0 || newTweet.uid > latestId) {
+                latestId = newTweet.uid;
+            }
+            tweets.add(0, newTweet);
+            tweetAdapter.notifyItemInserted(0);
+            rvTweets.scrollToPosition(0);
+        }
+        if (resultCode == RESULT_OK && requestCode == 30) {
             Tweet newTweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
             if (latestId == 0 || newTweet.uid > latestId) {
                 latestId = newTweet.uid;
@@ -217,6 +238,8 @@ public class TimelineActivity extends AppCompatActivity {
                         //notify adapter that item has been added
                         tweetAdapter.notifyItemInserted(i);
                     } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (ParseException e) {
                         e.printStackTrace();
                     }
                 }
@@ -279,7 +302,7 @@ public class TimelineActivity extends AppCompatActivity {
                             earliestId = tweet.uid;
                         }
                         tweetAdapter.notifyItemInserted(tweets.size() - 1);
-                    } catch (JSONException e) {
+                    } catch (JSONException | ParseException e) {
                         e.printStackTrace();
                     }
                 }

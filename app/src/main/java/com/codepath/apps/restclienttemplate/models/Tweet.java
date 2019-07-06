@@ -4,6 +4,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 @Parcel
 public class Tweet {
 
@@ -13,16 +18,22 @@ public class Tweet {
     public String createdAt;
     public Integer retweets;
     public Integer faves;
+    public String displayUrl;
+    public boolean favorited;
+    public boolean retweeted;
+    public String replyId;
+    public String dateCreated;
+    public String timeCreated;
 
     //deserialize the JSON
-    public static Tweet fromJSON(JSONObject jsonObject) throws JSONException {
+    public static Tweet fromJSON(JSONObject jsonObject) throws JSONException, ParseException {
         Tweet tweet = new Tweet();
 
         //extract values from JSON
 
-        try {
+        if (jsonObject.has("full_text")) {
             tweet.body = jsonObject.getString("full_text");
-        } catch (JSONException e) {
+        } else if (jsonObject.has("text")) {
             tweet.body = jsonObject.getString("text");
         }
 
@@ -31,6 +42,40 @@ public class Tweet {
         tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
         tweet.faves = jsonObject.getInt("favorite_count");
         tweet.retweets = jsonObject.getInt("retweet_count");
+        tweet.favorited = jsonObject.getBoolean("favorited");
+        tweet.retweeted = jsonObject.getBoolean("retweeted");
+
+        if (jsonObject.getJSONObject("entities").has("media")) {
+            tweet.displayUrl = jsonObject.getJSONObject("entities").getJSONArray("media").getJSONObject(0).getString("media_url_https");
+        } else if (jsonObject.has("extended_entities") && jsonObject.getJSONObject("extended_entities").has("media")) {
+            tweet.displayUrl = jsonObject.getJSONObject("extended_entities").getJSONArray("media").getJSONObject(0).getString("media_url_https");
+        }
+
+        if (jsonObject.getString("in_reply_to_user_id") != null) {
+            tweet.replyId = jsonObject.getString("in_reply_to_screen_name");
+        }
+//         String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
+//        SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);
+//        sf.setLenient(true);
+//
+//        String relativeDate = "";
+//        try {
+//            long dateMillis = sf.parse(rawJsonDate).getTime();
+//            relativeDate = DateUtils.getRelativeTimeSpanString(dateMillis, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+        SimpleDateFormat sf = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy", Locale.ENGLISH);
+        Date date = sf.parse(tweet.createdAt);
+        tweet.dateCreated = String.format("%s/%s/%s",date.getMonth(),date.getDate(),date.getYear() + 1900);
+        Integer hour;
+        if (date.getHours() > 12) {
+            hour = date.getHours() - 12;
+        } else {
+            hour = date.getHours();
+        }
+        tweet.timeCreated = String.format("%s:%s",hour,date.getMinutes());
+
         return tweet;
     }
 
@@ -60,5 +105,9 @@ public class Tweet {
 
     public Integer getFaves() {
         return faves;
+    }
+
+    public String getDisplayUrl() {
+        return displayUrl;
     }
 }
