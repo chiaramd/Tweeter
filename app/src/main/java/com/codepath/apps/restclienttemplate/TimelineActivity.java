@@ -46,15 +46,12 @@ public class TimelineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
-        //getSupportActionBar().setLogo(R.mipmap.ic_launcher_twittr);
-        //getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         client = TwitterApp.getRestClient(this);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,15 +60,12 @@ public class TimelineActivity extends AppCompatActivity {
         });
 
         //lookup the swipe container view
-        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer = findViewById(R.id.swipeContainer);
         //setup refresh listener
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //TODO un-comment this code
                 fetchTimelineAsync();
-                //TODO and comment out this code
-                //swipeContainer.setRefreshing(false);
             }
         });
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -80,16 +74,13 @@ public class TimelineActivity extends AppCompatActivity {
                 android.R.color.holo_red_light);
 
         //find RecyclerView
-        rvTweets = (RecyclerView) findViewById(R.id.rvTweet);
+        rvTweets = findViewById(R.id.rvTweet);
 
         //init the arrayList (data source)
         tweets = new ArrayList<>();
 
         //construct adapter from this data src
         tweetAdapter = new TweetAdapter(tweets, this);
-//        tweetAdapter.getRelativeTimeAgo("2019-06-03T17:53:29.621-0800");
-//        1939-07-03T17:53:29.621-0800
-
 
         //RecyclerView setup (layout manager, use adapter)
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -197,7 +188,7 @@ public class TimelineActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode == RESULT_OK && requestCode == 20) {
-            Tweet newTweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
+            Tweet newTweet = Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
             if (latestId == 0 || newTweet.uid > latestId) {
                 latestId = newTweet.uid;
             }

@@ -30,15 +30,15 @@ public class DetailActivity extends AppCompatActivity {
     public TextView tvBody;
     public TextView tvTime;
     public TextView tvHandle;
-    public TextView tvFaves;
-    public TextView tvRetweets;
-    public ImageView ivFave;
-    public ImageView ivRetweet;
-    public ImageView ivReply;
+    public TextView tvNumFaves;
+    public TextView tvNumRetweets;
+    public ImageView ivFaveImage;
+    public ImageView ivRetweetImage;
+    public ImageView ivReplyImage;
     public TextView tvRetweetText;
     public TextView tvFaveText;
     public TextView tvDate;
-    public ImageView ivTweetPic;
+    public ImageView ivTweetImage;
 
     private TwitterClient client;
 
@@ -48,7 +48,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
+        tweet = Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
 
         client = TwitterApp.getRestClient(this);
 
@@ -57,30 +57,28 @@ public class DetailActivity extends AppCompatActivity {
         tvBody = findViewById(R.id.tvBody);
         tvTime = findViewById(R.id.tvTime);
         tvHandle = findViewById(R.id.tvHandle);
-        tvFaves = findViewById(R.id.tvFave);
-        tvRetweets = findViewById(R.id.tvRetweet);
-        ivFave = findViewById(R.id.ivFave);
-        ivRetweet = findViewById(R.id.ivRetweet);
-        ivReply = findViewById(R.id.ivReply);
+        tvNumFaves = findViewById(R.id.tvFave);
+        tvNumRetweets = findViewById(R.id.tvRetweet);
+        ivFaveImage = findViewById(R.id.ivFave);
+        ivRetweetImage = findViewById(R.id.ivRetweet);
+        ivReplyImage = findViewById(R.id.ivReply);
         tvRetweetText = findViewById(R.id.tvRetweetText);
         tvFaveText = findViewById(R.id.tvFaveText);
         tvDate = findViewById(R.id.tvDate);
-        ivTweetPic = findViewById(R.id.ivTweetPic);
+        ivTweetImage = findViewById(R.id.ivTweetPic);
 
         tvUsername.setText(tweet.user.name);
         tvBody.setText(tweet.body);
         tvDate.setText(tweet.dateCreated);
         tvTime.setText(tweet.timeCreated);
-//        tvTime.setText(getRelativeTimeAgo(tweet.createdAt));
-//        tvDate.setText(...something...);
         tvHandle.setText(String.format("@%s",tweet.user.screenName));
-        tvRetweets.setText(Integer.toString(tweet.retweets));
-        tvFaves.setText(Integer.toString(tweet.faves));
+        tvNumRetweets.setText(String.format("%s", tweet.retweets));
+        tvNumFaves.setText(String.format("%s", tweet.faves));
         if (tweet.retweeted) {
-            ivRetweet.setColorFilter(Color.argb(200,0,120,0));
+            ivRetweetImage.setColorFilter(Color.argb(200,0,120,0));
         }
         if (tweet.favorited) {
-            ivFave.setColorFilter(Color.argb(200,200,0,0));
+            ivFaveImage.setColorFilter(Color.argb(200,200,0,0));
         }
 
         String imageUrl = tweet.user.profileImageUrl;
@@ -90,13 +88,12 @@ public class DetailActivity extends AppCompatActivity {
                 .into(ivProfileImage);
 
         if (tweet.getDisplayUrl() != null) {
-            ivTweetPic.setVisibility(View.VISIBLE);
-//TODO add rounded corners
+            ivTweetImage.setVisibility(View.VISIBLE);
             Glide.with(this)
                     .load(tweet.displayUrl)
-                    .into(ivTweetPic);
+                    .into(ivTweetImage);
         } else {
-            ivTweetPic.setVisibility(View.GONE);
+            ivTweetImage.setVisibility(View.GONE);
         }
     }
 
@@ -106,14 +103,14 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("TwitterClient", response.toString());
-                String numFaves = tvFaves.getText().toString();
+                String numFaves = tvNumFaves.getText().toString();
                 if (tweet.favorited) {
-                    ivFave.clearColorFilter();
-                    tvFaves.setText(Integer.toString(Integer.parseInt(numFaves) - 1));
+                    ivFaveImage.clearColorFilter();
+                    tvNumFaves.setText(String.format("%s", Integer.parseInt(numFaves) - 1));
                     tweet.favorited = false;
                 } else {
-                    ivFave.setColorFilter(Color.argb(200, 250, 0, 0));
-                    tvFaves.setText(Integer.toString(Integer.parseInt(numFaves) + 1));
+                    ivFaveImage.setColorFilter(Color.argb(200, 250, 0, 0));
+                    tvNumFaves.setText(String.format("%s", Integer.parseInt(numFaves) + 1));
                     tweet.favorited = true;
                 }
             }
@@ -146,14 +143,14 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("TwitterClient", response.toString());
-                String numRetweets = tvRetweets.getText().toString();
+                String numRetweets = tvNumRetweets.getText().toString();
                 if (tweet.retweeted) {
-                    ivRetweet.clearColorFilter();
-                    tvRetweets.setText(Integer.toString(Integer.parseInt(numRetweets) - 1));
+                    ivRetweetImage.clearColorFilter();
+                    tvNumRetweets.setText(String.format("%s", Integer.parseInt(numRetweets) - 1));
                     tweet.retweeted = false;
                 } else {
-                    ivRetweet.setColorFilter(Color.argb(200, 0, 120, 0));
-                    tvRetweets.setText(Integer.toString(Integer.parseInt(numRetweets) + 1));
+                    ivRetweetImage.setColorFilter(Color.argb(200, 0, 120, 0));
+                    tvNumRetweets.setText(String.format("%s", Integer.parseInt(numRetweets) + 1));
                     tweet.retweeted = true;
                 }
             }
@@ -195,7 +192,6 @@ public class DetailActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK && requestCode == 30) {
             Tweet newTweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
             Intent i = new Intent(this, TimelineActivity.class);
-            //i.putExtra(Tweet.class.getSimpleName(), Parcels.wrap(tweet));
             startActivity(i);
         }
     }

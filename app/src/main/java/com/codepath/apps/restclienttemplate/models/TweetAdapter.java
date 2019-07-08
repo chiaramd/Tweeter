@@ -39,8 +39,8 @@ import cz.msebera.android.httpclient.Header;
 public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> {
 
     private List<Tweet> mTweets;
-    Context context;
-    Activity activity;
+    private Context context;
+    private Activity activity;
 
     //pass in Tweets array in the constructor
     public TweetAdapter(List<Tweet> tweets, Activity activity1) {
@@ -54,10 +54,6 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
-
-//                "EEE MMM dd HH:mm:ss ZZZZZ yyyy"
-
         View tweetView = inflater.inflate(R.layout.item_tweet, viewGroup, false);
         ViewHolder viewHolder = new ViewHolder(tweetView);
         return viewHolder;
@@ -73,20 +69,20 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         viewHolder.tvUsername.setText(tweet.user.name);
         viewHolder.tvBody.setText(tweet.body);
         viewHolder.tvTimestamp.setText(getRelativeTimeAgo(tweet.createdAt));
-        viewHolder.tvHandle.setText(String.format("@%s",tweet.user.screenName));
-        viewHolder.tvRetweets.setText(Integer.toString(tweet.retweets));
-        viewHolder.tvFaves.setText(Integer.toString(tweet.faves));
+        viewHolder.tvHandle.setText(String.format("@%s", tweet.user.screenName));
+        viewHolder.tvNumRetweets.setText(String.format("%s", tweet.retweets));
+        viewHolder.tvNumFaves.setText(String.format("%s", tweet.faves));
         if (tweet.favorited) {
-            viewHolder.ivFave.setColorFilter(Color.argb(200,250,0,0));
+            viewHolder.ivFaveImage.setColorFilter(Color.argb(200,250,0,0));
         }
         if (tweet.retweeted) {
-            viewHolder.ivRetweet.setColorFilter(Color.argb(200,0,120,0));
+            viewHolder.ivRetweetImage.setColorFilter(Color.argb(200,0,120,0));
         }
-        if (tweet.replyId != "null") {
-            viewHolder.tvReply.setVisibility(View.VISIBLE);
-            viewHolder.tvReply.setText(String.format("Replying to @%s", tweet.replyId));
+        if (!tweet.replyId.equals("null")) {
+            viewHolder.tvReplyTo.setVisibility(View.VISIBLE);
+            viewHolder.tvReplyTo.setText(String.format("Replying to @%s", tweet.replyId));
         } else {
-            viewHolder.tvReply.setVisibility(View.GONE);
+            viewHolder.tvReplyTo.setVisibility(View.GONE);
         }
 
         String imageUrl = tweet.user.profileImageUrl;
@@ -96,14 +92,13 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
                 .into(viewHolder.ivProfileImage);
 
         if (tweet.getDisplayUrl() != null) {
-            viewHolder.ivTweetPic.setVisibility(View.VISIBLE);
-//TODO add rounded corners
+            viewHolder.ivTweetImage.setVisibility(View.VISIBLE);
             Glide.with(context)
                     .load(tweet.displayUrl)
-                    .into(viewHolder.ivTweetPic);
+                    .into(viewHolder.ivTweetImage);
 
         } else {
-            viewHolder.ivTweetPic.setVisibility(View.GONE);
+            viewHolder.ivTweetImage.setVisibility(View.GONE);
         }
     }
 
@@ -116,39 +111,39 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     //create ViewHolder class
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public ImageView ivProfileImage;
-        public TextView tvUsername;
-        public TextView tvBody;
-        public TextView tvTimestamp;
-        public TextView tvHandle;
-        public TextView tvFaves;
-        public TextView tvRetweets;
-        public ImageView ivFave;
-        public ImageView ivRetweet;
-        public ImageView ivReply;
-        public ImageView ivTweetPic;
-        public TextView tvReply;
+        ImageView ivProfileImage;
+        TextView tvUsername;
+        TextView tvBody;
+        TextView tvTimestamp;
+        TextView tvHandle;
+        TextView tvNumFaves;
+        TextView tvNumRetweets;
+        ImageView ivFaveImage;
+        ImageView ivRetweetImage;
+        ImageView ivReplyImage;
+        ImageView ivTweetImage;
+        TextView tvReplyTo;
         private TwitterClient client;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
 
             client = TwitterApp.getRestClient(context);
 
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.ivProfileImage);
-            tvUsername = (TextView) itemView.findViewById(R.id.tvUserName);
-            tvBody = (TextView) itemView.findViewById(R.id.tvBody);
-            tvTimestamp = (TextView) itemView.findViewById(R.id.tvTime);
-            tvHandle = (TextView) itemView.findViewById(R.id.tvHandle);
-            tvFaves = (TextView) itemView.findViewById(R.id.tvFave);
-            tvRetweets = (TextView) itemView.findViewById(R.id.tvRetweet);
-            ivFave = (ImageView) itemView.findViewById(R.id.ivFave);
-            ivRetweet = (ImageView) itemView.findViewById(R.id.ivRetweet);
-            ivReply = (ImageView) itemView.findViewById(R.id.ivReply);
-            ivTweetPic = (ImageView) itemView.findViewById(R.id.ivTweetPic);
-            tvReply = itemView.findViewById(R.id.tvReplyTo);
+            ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
+            tvUsername = itemView.findViewById(R.id.tvUserName);
+            tvBody = itemView.findViewById(R.id.tvBody);
+            tvTimestamp = itemView.findViewById(R.id.tvTime);
+            tvHandle = itemView.findViewById(R.id.tvHandle);
+            tvNumFaves = itemView.findViewById(R.id.tvFave);
+            tvNumRetweets = itemView.findViewById(R.id.tvRetweet);
+            ivFaveImage = itemView.findViewById(R.id.ivFave);
+            ivRetweetImage = itemView.findViewById(R.id.ivRetweet);
+            ivReplyImage = itemView.findViewById(R.id.ivReply);
+            ivTweetImage = itemView.findViewById(R.id.ivTweetPic);
+            tvReplyTo = itemView.findViewById(R.id.tvReplyTo);
 
-            ivFave.setOnClickListener(new View.OnClickListener() {
+            ivFaveImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
@@ -159,14 +154,14 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 Log.d("TwitterClient", response.toString());
-                                String numFaves = tvFaves.getText().toString();
+                                String numFaves = tvNumFaves.getText().toString();
                                 if (tweet.favorited) {
-                                    ivFave.clearColorFilter();
-                                    tvRetweets.setText(Integer.toString(Integer.parseInt(numFaves) - 1));
+                                    ivFaveImage.clearColorFilter();
+                                    tvNumFaves.setText(String.format("%s", Integer.parseInt(numFaves) - 1));
                                     tweet.favorited = false;
                                 } else {
-                                    ivFave.setColorFilter(Color.argb(200, 250, 0, 0));
-                                    tvFaves.setText(Integer.toString(Integer.parseInt(numFaves) + 1));
+                                    ivFaveImage.setColorFilter(Color.argb(200, 250, 0, 0));
+                                    tvNumFaves.setText(String.format("%s", Integer.parseInt(numFaves) + 1));
                                     tweet.favorited = true;
                                 }
                             }
@@ -195,7 +190,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
                 }
             });
 
-            ivRetweet.setOnClickListener(new View.OnClickListener() {
+            ivRetweetImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
@@ -206,14 +201,14 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 Log.d("TwitterClient", response.toString());
-                                String numRetweets = tvRetweets.getText().toString();
+                                String numRetweets = tvNumRetweets.getText().toString();
                                 if (tweet.retweeted) {
-                                    ivRetweet.clearColorFilter();
-                                    tvRetweets.setText(Integer.toString(Integer.parseInt(numRetweets) - 1));
+                                    ivRetweetImage.clearColorFilter();
+                                    tvNumRetweets.setText(String.format("%s", Integer.parseInt(numRetweets) - 1));
                                     tweet.retweeted = false;
                                 } else {
-                                    ivRetweet.setColorFilter(Color.argb(200, 0, 120, 0));
-                                    tvRetweets.setText(Integer.toString(Integer.parseInt(numRetweets) + 1));
+                                    ivRetweetImage.setColorFilter(Color.argb(200, 0, 120, 0));
+                                    tvNumRetweets.setText(String.format("%s", Integer.parseInt(numRetweets) + 1));
                                     tweet.retweeted = true;
                                 }                             }
 
@@ -241,52 +236,36 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
                 }
             });
 
-            ivReply.setOnClickListener(new View.OnClickListener() {
+            ivReplyImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int pos = getAdapterPosition();
                     Tweet tweet = mTweets.get(pos);
-                    if (pos != RecyclerView.NO_POSITION) {
-                        Intent intent = new Intent(activity, CompositionActivity.class);
-                        intent.putExtra("id", Long.toString(tweet.uid));
-                        intent.putExtra("username", tweet.user.screenName);
-                        activity.startActivityForResult(intent, 30);
-                    }
+                    Intent intent = new Intent(activity, CompositionActivity.class);
+                    intent.putExtra("id", Long.toString(tweet.uid));
+                    intent.putExtra("username", tweet.user.screenName);
+                    activity.startActivityForResult(intent, 30);
                 }
             });
-
-            itemView.setOnClickListener(this);
 
             tvBody.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                     Make the non-linked text clickable
+                    // Make the non-linked text clickable
                     if (tvBody.getSelectionStart() == -1 && tvBody.getSelectionEnd() == -1) {
-                // on click stuff here
                         Log.d("TweetAdapter", "Item clicked");
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
                             Tweet tweet = mTweets.get(position);
                             Intent intent = new Intent(context, DetailActivity.class);
                             intent.putExtra(Tweet.class.getSimpleName(), Parcels.wrap(tweet));
-//                            Pair<View, String> p1 = Pair.create((View)ivProfileImage,"profile");
-//                            Pair<View, String> p2 = Pair.create((View)tvUsername,"username");
-//                            Pair<View, String> p3 = Pair.create((View)tvBody,"body");
-////                Pair<View, String> p4 = Pair.create((View)tvHandle,"handle");
-////                Pair<View, String> p5 = Pair.create((View)ivRetweet,"retweetSymbol");
-////                Pair<View, String> p6 = Pair.create((View)ivFave,"faveSymbol");
-////                Pair<View, String> p7 = Pair.create((View)tvRetweets,"retweetText");
-////                Pair<View, String> p8 = Pair.create((View)tvFaves,"faveText");
-////                Pair<View, String> p9 = Pair.create((View)ivReply,"replyIcon");
-//                            Pair<View, String> p10 = Pair.create((View)ivTweetPic,"tweetPic");
-//                            ActivityOptionsCompat options = (ActivityOptionsCompat) ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) context, p1, p2, p3,  p10);
-
-//                            context.startActivity(intent, options.toBundle());
                             context.startActivity(intent);
                         }
                     }
                 }
             });
+
+            itemView.setOnClickListener(this);
         }
 
         @Override
@@ -300,30 +279,15 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
                 Pair<View, String> p1 = Pair.create((View)ivProfileImage,"profile");
                 Pair<View, String> p2 = Pair.create((View)tvUsername,"username");
                 Pair<View, String> p3 = Pair.create((View)tvBody,"body");
-//                Pair<View, String> p4 = Pair.create((View)tvHandle,"handle");
-//                Pair<View, String> p5 = Pair.create((View)ivRetweet,"retweetSymbol");
-//                Pair<View, String> p6 = Pair.create((View)ivFave,"faveSymbol");
-//                Pair<View, String> p7 = Pair.create((View)tvRetweets,"retweetText");
-//                Pair<View, String> p8 = Pair.create((View)tvFaves,"faveText");
-//                Pair<View, String> p9 = Pair.create((View)ivReply,"replyIcon");
-                Pair<View, String> p10 = Pair.create((View)ivTweetPic,"tweetPic");
-                ActivityOptionsCompat options = (ActivityOptionsCompat) ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) context, p1, p2, p3,  p10);
+                Pair<View, String> p10 = Pair.create((View)ivTweetImage,"tweetPic");
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) context, p1, p2, p3,  p10);
 
                 context.startActivity(intent, options.toBundle());
             }
         }
     }
 
-//    View.OnClickListener listener = (View v) -> {
-//            // Make the non-linked text clickable
-//            if (tvBody.getSelectionStart() == -1 && tvBody.getSelectionEnd() == -1) {
-//                // on click stuff here
-//            }
-//        };
-
-    //TODO figure out parsing day ago dates
-
-    public String getRelativeTimeAgo(String rawJsonDate) {
+    private String getRelativeTimeAgo(String rawJsonDate) {
         String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
         SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);
         sf.setLenient(true);
@@ -335,12 +299,8 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-
         String[] splitDate = relativeDate.split(" ", 2);
-        String reconstructedRelDate = String.format("%s%s", splitDate[0], splitDate[1].charAt(0));
 
-
-        return reconstructedRelDate;
+        return String.format("%s%s", splitDate[0], splitDate[1].charAt(0));
     }
 }

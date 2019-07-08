@@ -169,10 +169,8 @@ public class CompositionActivity extends AppCompatActivity {
             Integer charsLeft = 280 - Integer.valueOf(s.length());
             tvChars.setText(String.format("%s chars left", charsLeft));
             if (charsLeft == 0) {
-//                btnSendTweet.setClickable(true);
                 clickable = true;
             } else if (charsLeft == -1) {
-//                btnSendTweet.setClickable(false);
                 clickable = false;
             }
 

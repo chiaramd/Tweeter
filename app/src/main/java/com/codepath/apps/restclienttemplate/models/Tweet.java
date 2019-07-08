@@ -30,7 +30,6 @@ public class Tweet {
         Tweet tweet = new Tweet();
 
         //extract values from JSON
-
         if (jsonObject.has("full_text")) {
             tweet.body = jsonObject.getString("full_text");
         } else if (jsonObject.has("text")) {
@@ -54,17 +53,7 @@ public class Tweet {
         if (jsonObject.getString("in_reply_to_user_id") != null) {
             tweet.replyId = jsonObject.getString("in_reply_to_screen_name");
         }
-//         String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
-//        SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);
-//        sf.setLenient(true);
-//
-//        String relativeDate = "";
-//        try {
-//            long dateMillis = sf.parse(rawJsonDate).getTime();
-//            relativeDate = DateUtils.getRelativeTimeSpanString(dateMillis, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
+
         SimpleDateFormat sf = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy", Locale.ENGLISH);
         Date date = sf.parse(tweet.createdAt);
         tweet.dateCreated = String.format("%s/%s/%s",date.getMonth(),date.getDate(),date.getYear() + 1900);
